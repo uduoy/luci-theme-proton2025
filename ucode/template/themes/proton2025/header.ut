@@ -403,6 +403,7 @@ body {
 {% if (css): %}
 <style title="text/css">{{ css }}</style>
 {% endif %}
+	<script src="{{ media }}/login-animation-settings.js"></script>
 </head>
 {% let __page = join('-', ctx.request_path); %}
 {% if (!__page && ctx.dispatch_path): __page = join('-', ctx.dispatch_path); endif %}
