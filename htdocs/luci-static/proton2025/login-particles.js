@@ -127,9 +127,15 @@
             strength = strength == null ? 1 : strength;
 
             var g = ctx.createLinearGradient(0, 0, w, h);
-            g.addColorStop(0, "#07111f");
-            g.addColorStop(0.45, "#10283a");
-            g.addColorStop(1, "#050914");
+            if (document.documentElement.getAttribute("data-theme") === "light") {
+                g.addColorStop(0, "#f4f7fb");
+                g.addColorStop(0.45, "#e9f0f9");
+                g.addColorStop(1, "#dfe9f6");
+            } else {
+                g.addColorStop(0, "#07111f");
+                g.addColorStop(0.45, "#10283a");
+                g.addColorStop(1, "#050914");
+            }
 
             ctx.fillStyle = g;
             ctx.fillRect(0, 0, w, h);

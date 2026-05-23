@@ -18,23 +18,24 @@
 <script>
 // Apply all theme settings from localStorage (same as header.ut)
 (function() {
-	function resolveThemeMode(mode) {
-		if (mode === 'auto' && window.matchMedia) {
-			return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-		}
+     function resolveThemeMode(mode) {
+             if (mode === 'auto' && window.matchMedia) {
+                     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+             }
 
-		return mode === 'light' ? 'light' : 'dark';
-	}
+             return mode === 'light' ? 'light' : 'dark';
+     }
 
-	// Theme mode (dark/light/auto)
-	var themeMode = resolveThemeMode(localStorage.getItem('proton-theme-mode') || 'dark');
-	if (themeMode === 'light') {
-		document.documentElement.setAttribute('data-theme', 'light');
-		document.documentElement.setAttribute('data-darkmode', 'false');
-	} else {
-		document.documentElement.setAttribute('data-theme', 'dark');
-		document.documentElement.setAttribute('data-darkmode', 'true');
-	}
+     // Theme mode (dark/light/auto)
+     var themeMode = resolveThemeMode(localStorage.getItem('proton-theme-mode') || 'dark');
+     if (themeMode === 'light') {
+             document.documentElement.setAttribute('data-theme', 'light');
+             document.documentElement.setAttribute('data-darkmode', 'false');
+     } else {
+             document.documentElement.setAttribute('data-theme', 'dark');
+             document.documentElement.setAttribute('data-darkmode', 'true');
+     }
+     document.documentElement.style.colorScheme = themeMode;
 	
 	// Zoom
 	var defaultZoom = '100';
@@ -83,7 +84,7 @@
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="theme-color" content="#0f1419" />
-<meta name="color-scheme" content="dark" />
+<meta name="color-scheme" content="dark light" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <link rel="stylesheet" href="{{ media }}/cascade.css" />

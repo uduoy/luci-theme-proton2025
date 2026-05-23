@@ -87,3 +87,68 @@ body.login-page .login-header,
 body.login-page .login-logo {
     color: rgb(245, 247, 250) !important;
 }
+
+
+/* Light mode support for animated login page */
+:root[data-theme="light"] body.login-page {
+  background:
+    radial-gradient(circle at 20% 15%, rgba(47, 116, 208, 0.18), transparent 34%),
+    radial-gradient(circle at 80% 80%, rgba(47, 116, 208, 0.12), transparent 38%),
+    linear-gradient(135deg, #f4f7fb, #e9f0f9 55%, #dfe9f6) !important;
+  color: #152033 !important;
+}
+
+:root[data-theme="light"] #particles-js {
+  background:
+    radial-gradient(circle at 20% 15%, rgba(47, 116, 208, 0.18), transparent 34%),
+    radial-gradient(circle at 80% 80%, rgba(47, 116, 208, 0.12), transparent 38%),
+    linear-gradient(135deg, #f4f7fb, #e9f0f9 55%, #dfe9f6) !important;
+}
+
+:root[data-theme="light"] #particles-js canvas {
+  background: transparent !important;
+  opacity: 0.65;
+}
+
+:root[data-theme="light"] .login-card {
+  background: rgba(255, 255, 255, 0.82) !important;
+  border-color: rgba(57, 116, 210, 0.18) !important;
+  color: #152033 !important;
+  box-shadow:
+    0 18px 55px rgba(42, 70, 120, 0.16),
+    0 0 32px rgba(47, 116, 208, 0.20) !important;
+}
+
+:root[data-theme="light"] .login-card,
+:root[data-theme="light"] .login-card * {
+  color: #152033;
+}
+
+:root[data-theme="light"] .login-logo text {
+  fill: #152033 !important;
+}
+
+:root[data-theme="light"] .login-form input,
+:root[data-theme="light"] .login-form select,
+:root[data-theme="light"] .login-form textarea {
+  background: rgba(255, 255, 255, 0.76) !important;
+  color: #152033 !important;
+  border-color: rgba(47, 116, 208, 0.22) !important;
+}
+
+:root[data-theme="light"] .login-form input::placeholder {
+  color: rgba(55, 68, 92, 0.52) !important;
+}
+
+:root[data-theme="light"] .login-form button,
+:root[data-theme="light"] .login-form input[type="submit"],
+:root[data-theme="light"] .login-form .btn {
+  background: linear-gradient(135deg, #3d86e8, #2f74d0) !important;
+  color: #ffffff !important;
+  border-color: rgba(47, 116, 208, 0.28) !important;
+  box-shadow: 0 10px 26px rgba(47, 116, 208, 0.24) !important;
+}
+
+:root[data-theme="light"] a {
+  color: #2f74d0 !important;
+}
