@@ -214,6 +214,7 @@ body {
 <script src="{{ media }}/custom-pages.js" defer></script>
 <script src="{{ media }}/search-proton2025-data.js" defer></script>
 <script src="{{ media }}/search-proton2025.js" defer></script>
+<script src="{{ media }}/login-animation-settings.js"></script>
 
 <script>
 (function() {
