@@ -2999,6 +2999,9 @@ return baseclass.extend({
         observer.disconnect();
         this._themeSettingsObserver = null;
         this.initThemeSettings();
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent("proton-theme-settings-mounted"));
+        }, 200);
       }, 150);
     });
 
