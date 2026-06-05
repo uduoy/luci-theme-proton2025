@@ -50,6 +50,7 @@ set_proton_default table_wrap '1'
 set_proton_default log_highlight '1'
 set_proton_default page_width '0'
 set_proton_default custom_font '1'
+set_proton_default login_animation 'particles'
 
 uci commit proton2025
 
