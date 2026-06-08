@@ -56,7 +56,7 @@
 	}
 
 	// Применяем тему ДО отрисовки страницы, чтобы избежать мерцания
-	var storedThemeMode = localStorage.getItem('proton-theme-mode') || 'dark';
+	var storedThemeMode = localStorage.getItem('proton-theme-mode') || 'auto';
 	var themeMode = resolveThemeMode(storedThemeMode);
 	if (themeMode === 'light') {
 		document.documentElement.setAttribute('data-theme', 'light');

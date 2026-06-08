@@ -114,16 +114,16 @@ body.login-page .login-logo {
 /* Light mode support for animated login page */
 :root[data-theme="light"] body.login-page {
   background:
-    radial-gradient(circle at 20% 15%, rgba(47, 116, 208, 0.18), transparent 34%),
-    radial-gradient(circle at 80% 80%, rgba(47, 116, 208, 0.12), transparent 38%),
+    radial-gradient(circle at 20% 15%, rgba(var(--proton-accent-rgb, 47, 116, 208), 0.18), transparent 34%),
+    radial-gradient(circle at 80% 80%, rgba(var(--proton-accent-rgb, 47, 116, 208), 0.12), transparent 38%),
     linear-gradient(135deg, #f4f7fb, #e9f0f9 55%, #dfe9f6) !important;
   color: #152033 !important;
 }
 
 :root[data-theme="light"] #particles-js {
   background:
-    radial-gradient(circle at 20% 15%, rgba(47, 116, 208, 0.18), transparent 34%),
-    radial-gradient(circle at 80% 80%, rgba(47, 116, 208, 0.12), transparent 38%),
+    radial-gradient(circle at 20% 15%, rgba(var(--proton-accent-rgb, 47, 116, 208), 0.18), transparent 34%),
+    radial-gradient(circle at 80% 80%, rgba(var(--proton-accent-rgb, 47, 116, 208), 0.12), transparent 38%),
     linear-gradient(135deg, #f4f7fb, #e9f0f9 55%, #dfe9f6) !important;
 }
 
@@ -134,11 +134,11 @@ body.login-page .login-logo {
 
 :root[data-theme="light"] .login-card {
   background: rgba(255, 255, 255, 0.82) !important;
-  border-color: rgba(57, 116, 210, 0.18) !important;
+  border-color: rgba(var(--proton-accent-rgb, 47, 116, 208), 0.18) !important;
   color: #152033 !important;
   box-shadow:
-    0 18px 55px rgba(42, 70, 120, 0.16),
-    0 0 32px rgba(47, 116, 208, 0.20) !important;
+    0 18px 55px rgba(0, 0, 0, 0.16),
+    0 0 32px var(--proton-accent-glow, rgba(47, 116, 208, 0.20)) !important;
 }
 
 :root[data-theme="light"] .login-card,
@@ -161,7 +161,7 @@ body.login-page .login-logo {
 :root[data-theme="light"] .login-form textarea {
   background: rgba(255, 255, 255, 0.76) !important;
   color: #152033 !important;
-  border-color: rgba(47, 116, 208, 0.22) !important;
+  border-color: rgba(var(--proton-accent-rgb, 47, 116, 208), 0.22) !important;
 }
 
 :root[data-theme="light"] .login-form input::placeholder {
@@ -171,14 +171,14 @@ body.login-page .login-logo {
 :root[data-theme="light"] .login-form button,
 :root[data-theme="light"] .login-form input[type="submit"],
 :root[data-theme="light"] .login-form .btn {
-  background: linear-gradient(135deg, #3d86e8, #2f74d0) !important;
+  background: linear-gradient(135deg, var(--proton-accent, #3d86e8), var(--proton-accent-hover, #2f74d0)) !important;
   color: #ffffff !important;
-  border-color: rgba(47, 116, 208, 0.28) !important;
-  box-shadow: 0 10px 26px rgba(47, 116, 208, 0.24) !important;
+  border-color: transparent !important;
+  box-shadow: 0 10px 26px var(--proton-accent-glow, rgba(47, 116, 208, 0.24)) !important;
 }
 
 :root[data-theme="light"] a {
-  color: #2f74d0 !important;
+  color: var(--proton-accent, #2f74d0) !important;
 }
 
 /* Light mode input contrast fix */
@@ -188,10 +188,10 @@ body.login-page .login-logo {
   background-image: none !important;
   color: #152033 !important;
   -webkit-text-fill-color: #152033 !important;
-  border: 1px solid rgba(47, 116, 208, 0.28) !important;
+  border: 1px solid rgba(var(--proton-accent-rgb, 47, 116, 208), 0.28) !important;
   box-shadow:
-    inset 0 1px 2px rgba(42, 70, 120, 0.06),
-    0 0 0 1px rgba(47, 116, 208, 0.04) !important;
+    inset 0 1px 2px rgba(0, 0, 0, 0.06),
+    0 0 0 1px rgba(var(--proton-accent-rgb, 47, 116, 208), 0.04) !important;
 }
 
 :root[data-theme="light"] body.login-page .login-form input[type="text"]::placeholder,
@@ -205,11 +205,11 @@ body.login-page .login-logo {
   background-color: #ffffff !important;
   color: #152033 !important;
   -webkit-text-fill-color: #152033 !important;
-  border-color: rgba(47, 116, 208, 0.56) !important;
+  border-color: rgba(var(--proton-accent-rgb, 47, 116, 208), 0.56) !important;
   box-shadow:
-    0 0 0 1px rgba(47, 116, 208, 0.20),
-    0 0 0 4px rgba(47, 116, 208, 0.10),
-    0 8px 22px rgba(42, 70, 120, 0.10) !important;
+    0 0 0 1px rgba(var(--proton-accent-rgb, 47, 116, 208), 0.20),
+    0 0 0 4px rgba(var(--proton-accent-rgb, 47, 116, 208), 0.10),
+    0 8px 22px rgba(var(--proton-accent-rgb, 47, 116, 208), 0.10) !important;
 }
 
 :root[data-theme="light"] body.login-page .login-form input:-webkit-autofill,
@@ -217,5 +217,5 @@ body.login-page .login-logo {
 :root[data-theme="light"] body.login-page .login-form input:-webkit-autofill:focus {
   -webkit-text-fill-color: #152033 !important;
   box-shadow: 0 0 0 1000px #ffffff inset !important;
-  border: 1px solid rgba(47, 116, 208, 0.28) !important;
+  border: 1px solid rgba(var(--proton-accent-rgb, 47, 116, 208), 0.28) !important;
 }

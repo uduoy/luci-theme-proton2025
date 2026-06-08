@@ -120,9 +120,9 @@ return baseclass.extend({
     const storedThemeMode = localStorage.getItem("proton-theme-mode");
     const settings = {
       themeMode:
-        storedThemeMode === "light" || storedThemeMode === "auto"
+        storedThemeMode === "light" || storedThemeMode === "dark"
           ? storedThemeMode
-          : "dark",
+          : "auto",
       accentColor: localStorage.getItem("proton-accent-color") || "blue",
       borderRadius: localStorage.getItem("proton-border-radius") || "default",
       zoom: localStorage.getItem("proton-zoom") || defaultZoom,
@@ -2005,9 +2005,9 @@ return baseclass.extend({
       const storedThemeMode = localStorage.getItem("proton-theme-mode");
       const settings = {
         themeMode:
-          storedThemeMode === "light" || storedThemeMode === "auto"
+          storedThemeMode === "light" || storedThemeMode === "dark"
             ? storedThemeMode
-            : "dark",
+            : "auto",
         accentColor: localStorage.getItem("proton-accent-color") || "blue",
         borderRadius: localStorage.getItem("proton-border-radius") || "default",
         zoom: parseInt(localStorage.getItem("proton-zoom") || defaultZoom),
@@ -2045,7 +2045,7 @@ return baseclass.extend({
                 }>${t("Auto")} (${t("System")})</option>
                 <option value="dark" ${
                   settings.themeMode === "dark" ? "selected" : ""
-                }>${t("Dark")} (${t("Default")})</option>
+                }>${t("Dark")}</option>
                 <option value="light" ${
                   settings.themeMode === "light" ? "selected" : ""
                 }>${t("Light")}</option>
@@ -2150,7 +2150,7 @@ return baseclass.extend({
               <div id="proton-page-width-slider" style="display: ${settings.pageWidth > 0 ? "flex" : "none"}; align-items: center; gap: 12px; margin-top: 8px;">
                 <button type="button" id="proton-page-width-minus" class="cbi-button" style="padding: 0.4rem 0.8rem; min-width: auto;">−</button>
                 <input type="range" id="proton-page-width-range" min="50" max="100" step="5" value="${
-                  settings.pageWidth > 0 ? settings.pageWidth : 75
+                  settings.pageWidth > 0 ? settings.pageWidth : 80
                 }" style="flex: 1; accent-color: var(--proton-accent);">
                 <button type="button" id="proton-page-width-plus" class="cbi-button" style="padding: 0.4rem 0.8rem; min-width: auto;">+</button>
               </div>
@@ -2404,12 +2404,16 @@ return baseclass.extend({
         const mode = e.target.value;
         localStorage.setItem("proton-theme-mode", mode);
         this.applyThemeMode(mode);
+        if (zoomRange) updateSliderFill(zoomRange);
+        if (pageWidthRange) updateSliderFill(pageWidthRange);
       });
 
       accentSelect?.addEventListener("change", (e) => {
         const color = e.target.value;
         localStorage.setItem("proton-accent-color", color);
         this.applyAccentColor(color);
+        if (zoomRange) updateSliderFill(zoomRange);
+        if (pageWidthRange) updateSliderFill(pageWidthRange);
       });
 
       radiusSelect?.addEventListener("change", (e) => {
@@ -2876,7 +2880,7 @@ return baseclass.extend({
           } else {
             // Fallback if sync module not loaded
             const defaults = {
-              "proton-theme-mode": "dark",
+              "proton-theme-mode": "auto",
               "proton-accent-color": "blue",
               "proton-zoom": "100",
               "proton-transparency": "true",
@@ -3025,7 +3029,7 @@ return baseclass.extend({
     );
 
     const handleThemeModeChange = () => {
-      const storedMode = localStorage.getItem("proton-theme-mode") || "dark";
+      const storedMode = localStorage.getItem("proton-theme-mode") || "auto";
       if (storedMode === "auto") {
         this.applyThemeMode("auto");
       }
@@ -3177,7 +3181,7 @@ return baseclass.extend({
     if (window.innerWidth < 800) {
       document.documentElement.style.setProperty(
         "--proton-page-max-width",
-        "990px",
+        "80%",
       );
       return;
     }
@@ -3189,7 +3193,7 @@ return baseclass.extend({
     } else {
       document.documentElement.style.setProperty(
         "--proton-page-max-width",
-        "990px",
+        "80%",
       );
     }
   },

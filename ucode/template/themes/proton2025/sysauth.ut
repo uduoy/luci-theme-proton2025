@@ -85,7 +85,7 @@
      }
 
      // Theme mode (dark/light/auto)
-     var themeMode = resolveThemeMode(localStorage.getItem('proton-theme-mode') || 'dark');
+     var themeMode = resolveThemeMode(localStorage.getItem('proton-theme-mode') || 'auto');
      if (themeMode === 'light') {
              document.documentElement.setAttribute('data-theme', 'light');
              document.documentElement.setAttribute('data-darkmode', 'false');
@@ -112,21 +112,42 @@
 	// Accent color
 	var a = localStorage.getItem('proton-accent-color') || 'blue';
 	var c = {
-		default: { accent: '#4b5563', hover: '#374151', glow: 'rgba(75, 85, 99, 0.22)' },
-		blue:    { accent: '#5e9eff', hover: '#7db2ff', glow: 'rgba(94, 158, 255, 0.18)' },
-		purple:  { accent: '#a78bfa', hover: '#c3b4ff', glow: 'rgba(167, 139, 250, 0.22)' },
-		green:   { accent: '#34d399', hover: '#2fb885', glow: 'rgba(52, 211, 153, 0.18)' },
-		orange:  { accent: '#fb923c', hover: '#f47c1f', glow: 'rgba(251, 146, 60, 0.20)' },
-		red:     { accent: '#f87171', hover: '#f04c4c', glow: 'rgba(248, 113, 113, 0.20)' }
+		default: { accent: '#4b5563', hover: '#374151', glow: 'rgba(75, 85, 99, 0.22)', rgb: '75, 85, 99' },
+		blue:    { accent: '#5e9eff', hover: '#7db2ff', glow: 'rgba(94, 158, 255, 0.18)', rgb: '94, 158, 255' },
+		purple:  { accent: '#a78bfa', hover: '#c3b4ff', glow: 'rgba(167, 139, 250, 0.22)', rgb: '167, 139, 250' },
+		green:   { accent: '#34d399', hover: '#2fb885', glow: 'rgba(52, 211, 153, 0.18)', rgb: '52, 211, 153' },
+		orange:  { accent: '#fb923c', hover: '#f47c1f', glow: 'rgba(251, 146, 60, 0.20)', rgb: '251, 146, 60' },
+		red:     { accent: '#f87171', hover: '#f04c4c', glow: 'rgba(248, 113, 113, 0.20)', rgb: '248, 113, 113' }
 	};
 	if (c[a]) {
 		document.documentElement.style.setProperty('--proton-accent', c[a].accent);
 		document.documentElement.style.setProperty('--proton-accent-hover', c[a].hover);
 		document.documentElement.style.setProperty('--proton-accent-glow', c[a].glow);
+		document.documentElement.style.setProperty('--proton-accent-rgb', c[a].rgb);
 	}
 	
 	// Animations
 	if (localStorage.getItem('proton-animations') === 'false') document.documentElement.classList.add('proton-no-animations');
+
+	// Background color (set before cascade.css loads to avoid a flash)
+	var bgSolid = themeMode === 'light' ? '#ffffff' : '#0f1419';
+	document.documentElement.style.setProperty('background-color', bgSolid);
+
+	// Live-follow OS theme changes while in 'auto' mode
+	if ((localStorage.getItem('proton-theme-mode') || 'auto') === 'auto' && window.matchMedia) {
+		var mq = window.matchMedia('(prefers-color-scheme: dark)');
+		var applyOsTheme = function (dark) {
+			var theme = dark ? 'dark' : 'light';
+			document.documentElement.setAttribute('data-theme', theme);
+			document.documentElement.setAttribute('data-darkmode', dark ? 'true' : 'false');
+			document.documentElement.style.setProperty('background-color', dark ? '#0f1419' : '#ffffff');
+		};
+		if (typeof mq.addEventListener === 'function') {
+			mq.addEventListener('change', function (ev) { applyOsTheme(ev.matches); });
+		} else if (typeof mq.addListener === 'function') {
+			mq.addListener(function (ev) { applyOsTheme(ev.matches); });
+		}
+	}
 
 	// Login page means a new auth session is starting soon, so restore any
 	// alerts that were only dismissed for the previous authenticated session.

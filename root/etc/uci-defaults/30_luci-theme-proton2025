@@ -37,7 +37,7 @@ set_proton_default() {
 	fi
 }
 
-set_proton_default mode 'dark'
+set_proton_default mode 'auto'
 set_proton_default accent 'blue'
 set_proton_default zoom '100'
 set_proton_default transparency '1'

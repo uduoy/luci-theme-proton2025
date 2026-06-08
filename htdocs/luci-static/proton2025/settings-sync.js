@@ -303,7 +303,7 @@
     // Reset all settings to defaults
     resetToDefaults: async function () {
       const defaults = {
-        "proton-theme-mode": "dark",
+        "proton-theme-mode": "auto",
         "proton-accent-color": "blue",
         "proton-zoom": "100",
         "proton-transparency": "true",

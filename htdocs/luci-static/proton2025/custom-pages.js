@@ -1701,3 +1701,287 @@
   });
   buttonObserver.observe(document.body, { childList: true, subtree: true });
 })();
+
+// =====================================================
+// luci-mod-dashboard — fix section inline backgrounds
+// luci-mod-dashboard may assign var(--proton-bg) via
+// inline style. CSS !important handles class-based rules;
+// this handles any remaining inline style overrides.
+// =====================================================
+(function () {
+  "use strict";
+
+  function fixDashboardSectionBackgrounds() {
+    var page = document.body.dataset.page || "";
+    if (page.indexOf("admin-dashboard") !== 0) return;
+
+    var sections = document.querySelectorAll(".cbi-section");
+    for (var i = 0; i < sections.length; i++) {
+      var el = sections[i];
+      var inlineStyle = el.getAttribute("style") || "";
+      // Только если инлайн-стиль явно выставляет var(--proton-bg) без суффикса
+      if (inlineStyle && /--proton-bg\b/.test(inlineStyle) && !/--proton-bg-/.test(inlineStyle)) {
+        el.style.background = "var(--proton-bg-secondary)";
+        el.style.borderColor = "var(--proton-border)";
+      }
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", fixDashboardSectionBackgrounds);
+  } else {
+    fixDashboardSectionBackgrounds();
+  }
+
+  // SPA navigation
+  var dashBgObserver = new MutationObserver(function (mutations) {
+    for (var i = 0; i < mutations.length; i++) {
+      if (mutations[i].attributeName === "data-page") {
+        setTimeout(fixDashboardSectionBackgrounds, 100);
+        break;
+      }
+    }
+  });
+  dashBgObserver.observe(document.body, {
+    attributes: true,
+    attributeFilter: ["data-page"],
+  });
+
+  // Watch for dynamically added sections on dashboard
+  var dashContentObserver = new MutationObserver(function () {
+    var page = document.body.dataset.page || "";
+    if (page.indexOf("admin-dashboard") === 0) {
+      fixDashboardSectionBackgrounds();
+    }
+  });
+  dashContentObserver.observe(document.body, { childList: true, subtree: true });
+})();
+
+// =====================================================
+// SSClash / Mihomo inline-style patcher
+//
+// Problem: SSClash mutates element.style.* at runtime (hover, selection).
+// When any property is set via JS, the browser re-serializes the entire
+// CSSStyleDeclaration, normalizing hex colors to rgb() — so
+// "color: #1f2937" becomes "color: rgb(31, 41, 55)" and our CSS
+// [style*="color: #1f2937"] stops matching.
+//
+// Patches are split into two tiers:
+//   ACCENT — applied in both dark and light themes (selection states,
+//             borders that should follow the Proton theme accent color).
+//   DARK   — applied only in dark theme (neutral backgrounds / text).
+// =====================================================
+(function () {
+  "use strict";
+
+  function isSSClashPage() {
+    var page = document.body.dataset.page || "";
+    return page.indexOf("ssclash") !== -1 || page.indexOf("mihomo") !== -1;
+  }
+
+  function isDark() {
+    return document.documentElement.getAttribute("data-theme") !== "light";
+  }
+
+  // ── Tier 1: accent-aware remaps (both themes) ──────────────────────
+
+  // SSClash hardcodes #0066cc as its "selected" border.
+  // Remap to --proton-accent so the theme colour is respected.
+  var BORDER_ACCENT = {
+    "#0066cc":          "var(--proton-accent)",
+    "rgb(0, 102, 204)": "var(--proton-accent)",
+  };
+
+  // SSClash uses #f0f8ff / #e6f3ff as selected-state backgrounds.
+  // Remap to --proton-accent-rgb tints so the accent colour is respected.
+  // setProperty() is used below to store CSS-var expressions safely.
+  var BG_ACCENT = {
+    "#f0f8ff":            "rgba(var(--proton-accent-rgb), 0.10)",
+    "rgb(240, 248, 255)": "rgba(var(--proton-accent-rgb), 0.10)",
+    "#e6f3ff":            "rgba(var(--proton-accent-rgb), 0.08)",
+    "rgb(230, 243, 255)": "rgba(var(--proton-accent-rgb), 0.08)",
+  };
+
+  // ── Tier 2: dark-theme remaps (dark mode only) ─────────────────────
+
+  // White / near-white panels → dark surface
+  var BG_DARK = {
+    "white":              "var(--proton-bg-secondary)",
+    "#fff":               "var(--proton-bg-secondary)",
+    "rgb(255, 255, 255)": "var(--proton-bg-secondary)",
+    "#f9f9f9":            "var(--proton-bg-secondary)",
+    "rgb(249, 249, 249)": "var(--proton-bg-secondary)",
+    "#f8f9fa":            "var(--proton-bg-secondary)",
+    "rgb(248, 249, 250)": "var(--proton-bg-secondary)",
+    "#f8f8f8":            "var(--proton-bg-secondary)",
+    "rgb(248, 248, 248)": "var(--proton-bg-secondary)",
+    // green-tint: auto-detected LAN bridge, hover on checked interface
+    "#f8fff8":            "rgba(40, 167, 69, 0.13)",
+    "rgb(248, 255, 248)": "rgba(40, 167, 69, 0.13)",
+    "#e8f5e8":            "rgba(40, 167, 69, 0.15)",
+    "rgb(232, 245, 232)": "rgba(40, 167, 69, 0.15)",
+    "#f0fff0":            "rgba(40, 167, 69, 0.13)",
+    "rgb(240, 255, 240)": "rgba(40, 167, 69, 0.13)",
+    // amber-tint: warning panels
+    "#fff3cd":            "rgba(255, 193, 7, 0.14)",
+    "rgb(255, 243, 205)": "rgba(255, 193, 7, 0.14)",
+  };
+
+  // Dark text → readable in dark theme
+  var COLOR_DARK = {
+    "rgb(31, 41, 55)":    "var(--proton-fg)",
+    "rgb(55, 65, 81)":    "var(--proton-fg)",
+    "rgb(75, 85, 99)":    "var(--proton-muted)",
+    "rgb(107, 114, 128)": "var(--proton-muted)",
+    "rgb(133, 100, 4)":   "#e9c46a",
+    "rgb(21, 87, 36)":    "#6fcf97",
+  };
+
+  // Neutral borders → Proton border token (dark-mode only)
+  var BORDER_DARK = {
+    "rgb(221, 221, 221)": "var(--proton-border)",
+    "rgb(204, 204, 204)": "var(--proton-border)",
+  };
+
+  // ── Patch a single element ─────────────────────────────────────────
+
+  function patchEl(el) {
+    if (!el || !el.style) return;
+    var s = el.style;
+
+    // Tier 1: accent border (both themes)
+    var bc = s.borderColor;
+    if (bc && BORDER_ACCENT[bc] !== undefined) {
+      s.setProperty("border-color", BORDER_ACCENT[bc]);
+    }
+
+    // Tier 1: accent background tint (both themes)
+    var bg = s.backgroundColor;
+    if (bg && BG_ACCENT[bg] !== undefined) {
+      s.setProperty("background-color", BG_ACCENT[bg]);
+      bg = null; // skip BG_DARK check for this element
+    }
+
+    if (!isDark()) return;
+
+    // Tier 2: neutral background → dark surface
+    if (bg === null) bg = s.backgroundColor;
+    if (bg && BG_DARK[bg] !== undefined) {
+      s.backgroundColor = BG_DARK[bg];
+    }
+
+    // Tier 2: text colour
+    var col = s.color;
+    if (col && COLOR_DARK[col] !== undefined) {
+      s.color = COLOR_DARK[col];
+    }
+
+    // Tier 2: neutral border
+    bc = s.borderColor;
+    if (bc && BORDER_DARK[bc] !== undefined) {
+      s.borderColor = BORDER_DARK[bc];
+    }
+
+    var blc = s.borderLeftColor;
+    if (blc && BORDER_DARK[blc] !== undefined) {
+      s.borderLeftColor = BORDER_DARK[blc];
+    }
+  }
+
+  // ── Patch all styled elements inside maincontent ───────────────────
+
+  function patchAll() {
+    var root = document.getElementById("maincontent") || document.body;
+    var els = root.querySelectorAll("[style]");
+    for (var i = 0; i < els.length; i++) {
+      patchEl(els[i]);
+    }
+  }
+
+  // ── MutationObserver setup ─────────────────────────────────────────
+
+  var styleObs = null;
+
+  function startObs() {
+    if (styleObs) return;
+    var root = document.getElementById("maincontent") || document.body;
+    styleObs = new MutationObserver(function (mutations) {
+      for (var i = 0; i < mutations.length; i++) {
+        var m = mutations[i];
+        if (m.type === "attributes") {
+          patchEl(m.target);
+        } else if (m.type === "childList") {
+          for (var j = 0; j < m.addedNodes.length; j++) {
+            var node = m.addedNodes[j];
+            if (node.nodeType !== 1) continue;
+            patchEl(node);
+            var ch = node.querySelectorAll("[style]");
+            for (var k = 0; k < ch.length; k++) patchEl(ch[k]);
+          }
+        }
+      }
+    });
+    styleObs.observe(root, {
+      attributes: true,
+      attributeFilter: ["style"],
+      childList: true,
+      subtree: true,
+    });
+  }
+
+  function stopObs() {
+    if (styleObs) { styleObs.disconnect(); styleObs = null; }
+  }
+
+  function onPageChange() {
+    if (isSSClashPage()) {
+      startObs();
+      setTimeout(patchAll, 100);
+    } else {
+      stopObs();
+    }
+  }
+
+  function init() {
+    if (!isSSClashPage()) return;
+    startObs();
+    patchAll();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+  window.addEventListener("load", function () {
+    if (isSSClashPage()) { patchAll(); }
+  });
+
+  // SPA navigation (data-page changes)
+  var ssNavObs = new MutationObserver(function (mutations) {
+    for (var i = 0; i < mutations.length; i++) {
+      if (mutations[i].attributeName === "data-page") {
+        setTimeout(onPageChange, 50);
+        return;
+      }
+    }
+  });
+  ssNavObs.observe(document.body, {
+    attributes: true,
+    attributeFilter: ["data-page"],
+  });
+
+  // Theme toggle (dark ↔ light): re-patch so accent/dark tiers both apply
+  var ssThemeObs = new MutationObserver(function (mutations) {
+    for (var i = 0; i < mutations.length; i++) {
+      if (mutations[i].attributeName === "data-theme") {
+        if (isSSClashPage()) setTimeout(patchAll, 50);
+        return;
+      }
+    }
+  });
+  ssThemeObs.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-theme"],
+  });
+})();

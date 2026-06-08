@@ -7,22 +7,6 @@
 
     var STORAGE_KEY = "proton-login-animation";
 
-    var OPTIONS = [
-        ["off", "Off"],
-        ["particles", "Classic Particles"],
-        ["constellation", "Constellation"],
-        ["plexus", "Plexus / Neural"],
-        ["breathing", "Breathing Particles"],
-        ["gravity", "Gravity Hover"],
-        ["lowpoly", "Low Poly Mesh"],
-        ["dataflow", "Data Flow"],
-        ["flowfield", "Flow Field"],
-        ["circuit", "Circuit Board"],
-        ["packetpulses", "Packet Pulses"],
-        ["hex", "Hex Grid"],
-        ["underwater", "Underwater Depths"]
-    ];
-
     function isRu() {
         var lang = (document.documentElement.lang || document.body.dataset.lang || "").toLowerCase();
         return lang.indexOf("ru") === 0;
@@ -31,6 +15,22 @@
     function tr(en, ru) {
         return isRu() ? ru : en;
     }
+
+    var OPTIONS = [
+        ["off", tr("Off", "Выкл")],
+        ["particles", tr("Classic Particles", "Классические частицы")],
+        ["constellation", tr("Constellation", "Созвездие")],
+        ["plexus", tr("Plexus / Neural", "Плекс / Нейронный")],
+        ["breathing", tr("Breathing Particles", "Дышащие частицы")],
+        ["gravity", tr("Gravity Hover", "Гравитация")],
+        ["lowpoly", tr("Low Poly Mesh", "Низкополигональная сетка")],
+        ["dataflow", tr("Data Flow", "Поток данных")],
+        ["flowfield", tr("Flow Field", "Поле течений")],
+        ["circuit", tr("Circuit Board", "Плата схем")],
+        ["packetpulses", tr("Packet Pulses", "Пакетные импульсы")],
+        ["hex", tr("Hex Grid", "Шестиугольная сетка")],
+        ["underwater", tr("Underwater Depths", "Подводные глубины")]
+    ];
 
     function getTitleText(row) {
         var title = row.querySelector(".cbi-value-title, label, .control-label");

@@ -471,8 +471,11 @@ window.ProtonTranslations = {
     // Theme Settings
     "Proton2025 Theme Settings": "Proton2025 主题设置",
     "Theme Mode": "主题模式",
+    Auto: "自动",
     Dark: "深色",
     Light: "浅色",
+    "Choose light, dark, or follow system theme":
+      "选择浅色、深色主题或跟随系统设置",
     "Choose light or dark theme": "选择浅色或深色主题",
     "Accent Color": "强调色",
     "Choose theme accent color": "选择主题强调色",
@@ -789,8 +792,11 @@ window.ProtonTranslations = {
     // Theme Settings
     "Proton2025 Theme Settings": "Proton2025 Theme-Einstellungen",
     "Theme Mode": "Theme-Modus",
+    Auto: "Auto",
     Dark: "Dunkel",
     Light: "Hell",
+    "Choose light, dark, or follow system theme":
+      "Helles, dunkles Theme oder Systemeinstellung wählen",
     "Choose light or dark theme": "Helles oder dunkles Theme wählen",
     "Accent Color": "Akzentfarbe",
     "Choose theme accent color": "Theme-Akzentfarbe wählen",
@@ -1109,8 +1115,11 @@ window.ProtonTranslations = {
     // Theme Settings
     "Proton2025 Theme Settings": "Налаштування теми Proton2025",
     "Theme Mode": "Режим теми",
+    Auto: "Авто",
     Dark: "Темний",
     Light: "Світлий",
+    "Choose light, dark, or follow system theme":
+      "Виберіть світлу, темну тему або слідування системній темі",
     "Choose light or dark theme": "Виберіть світлу або темну тему",
     "Accent Color": "Акцентний колір",
     "Choose theme accent color": "Виберіть акцентний колір теми",
@@ -1431,8 +1440,11 @@ window.ProtonTranslations = {
     // Theme Settings
     "Proton2025 Theme Settings": "Configuración del Tema Proton2025",
     "Theme Mode": "Modo del Tema",
+    Auto: "Auto",
     Dark: "Oscuro",
     Light: "Claro",
+    "Choose light, dark, or follow system theme":
+      "Elegir tema claro, oscuro o seguir el tema del sistema",
     "Choose light or dark theme": "Elegir tema claro u oscuro",
     "Accent Color": "Color de Acento",
     "Choose theme accent color": "Elegir color de acento del tema",
@@ -1755,8 +1767,11 @@ window.ProtonTranslations = {
     // Theme Settings
     "Proton2025 Theme Settings": "Configurações do Tema Proton2025",
     "Theme Mode": "Modo do Tema",
+    Auto: "Auto",
     Dark: "Escuro",
     Light: "Claro",
+    "Choose light, dark, or follow system theme":
+      "Escolher tema claro, escuro ou seguir o tema do sistema",
     "Choose light or dark theme": "Escolher tema claro ou escuro",
     "Accent Color": "Cor de Destaque",
     "Choose theme accent color": "Escolher cor de destaque do tema",
@@ -2077,8 +2092,11 @@ window.ProtonTranslations = {
     // Theme Settings
     "Proton2025 Theme Settings": "Ustawienia Motywu Proton2025",
     "Theme Mode": "Tryb Motywu",
+    Auto: "Auto",
     Dark: "Ciemny",
     Light: "Jasny",
+    "Choose light, dark, or follow system theme":
+      "Wybierz jasny, ciemny motyw lub podążanie za motywem systemowym",
     "Choose light or dark theme": "Wybierz jasny lub ciemny motyw",
     "Accent Color": "Kolor Akcentu",
     "Choose theme accent color": "Wybierz kolor akcentu motywu",
@@ -2400,8 +2418,11 @@ window.ProtonTranslations = {
     // Theme Settings
     "Proton2025 Theme Settings": "Paramètres du Thème Proton2025",
     "Theme Mode": "Mode du Thème",
+    Auto: "Auto",
     Dark: "Sombre",
     Light: "Clair",
+    "Choose light, dark, or follow system theme":
+      "Choisir un thème clair, sombre ou suivre le thème du système",
     "Choose light or dark theme": "Choisir un thème clair ou sombre",
     "Accent Color": "Couleur d'Accent",
     "Choose theme accent color": "Choisir la couleur d'accent du thème",
@@ -2724,8 +2745,11 @@ window.ProtonTranslations = {
     // Theme Settings
     "Proton2025 Theme Settings": "Impostazioni Tema Proton2025",
     "Theme Mode": "Modalità Tema",
+    Auto: "Auto",
     Dark: "Scuro",
     Light: "Chiaro",
+    "Choose light, dark, or follow system theme":
+      "Scegli tema chiaro, scuro o segui il tema di sistema",
     "Choose light or dark theme": "Scegli tema chiaro o scuro",
     "Accent Color": "Colore Accento",
     "Choose theme accent color": "Scegli il colore accento del tema",
