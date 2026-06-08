@@ -97,8 +97,21 @@
 	
 	// Zoom
 	var defaultZoom = '100';
-	var z = localStorage.getItem('proton-zoom') || defaultZoom;
-	document.documentElement.style.zoom = z / 100;
+	var z = parseInt(localStorage.getItem('proton-zoom') || defaultZoom, 10);
+
+	if (isNaN(z)) {
+	    z = 100;
+	}
+
+	z = Math.max(75, Math.min(150, z));
+
+	// Keep the login page fullscreen. Apply UI zoom only to the login content.
+	document.documentElement.style.zoom = '';
+	document.documentElement.style.setProperty('--proton-login-scale', z / 100);
+
+	if (document.body) {
+	    document.body.style.zoom = '';
+	}
 	
 	// Transparency
 	var t = localStorage.getItem('proton-transparency');

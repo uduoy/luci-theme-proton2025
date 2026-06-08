@@ -219,3 +219,20 @@ body.login-page .login-logo {
   box-shadow: 0 0 0 1000px #ffffff inset !important;
   border: 1px solid rgba(var(--proton-accent-rgb, 47, 116, 208), 0.28) !important;
 }
+
+/* Login page: keep fullscreen background, scale login UI,
+   and compensate animation layer size so no empty bands appear */
+body.login-page #particles-js {
+    position: fixed !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: calc(100vw / var(--proton-login-scale, 1)) !important;
+    height: calc(100vh / var(--proton-login-scale, 1)) !important;
+    transform: translate(-50%, -50%) scale(var(--proton-login-scale, 1)) !important;
+    transform-origin: center center !important;
+}
+
+body.login-page .login-card {
+    transform: scale(var(--proton-login-scale, 1)) !important;
+    transform-origin: center center !important;
+}
