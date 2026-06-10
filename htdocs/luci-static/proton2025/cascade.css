@@ -103,7 +103,7 @@
     --proton-transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
     /* Layout */
-    --proton-page-max-width: none;
+    --proton-page-max-width: 990px;
     --proton-page-gutter: 20px;
 
     /* Legacy compatibility */

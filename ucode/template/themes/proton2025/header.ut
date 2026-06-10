@@ -94,7 +94,9 @@
 	if (localStorage.getItem('proton-animations') === 'false') document.documentElement.classList.add('proton-no-animations');
 	var pw = localStorage.getItem('proton-page-width');
 	if (pw && parseInt(pw) > 0 && window.innerWidth >= 800) {
-		document.documentElement.style.setProperty('--proton-page-max-width', pw + '%');
+		document.documentElement.style.setProperty('--proton-page-max-width', pw + '%', 'important');
+	} else if (window.innerWidth >= 800) {
+		document.documentElement.style.setProperty('--proton-page-max-width', '990px', 'important');
 	}
 	// Устанавливаем фоновый цвет ДО загрузки cascade.css, чтобы избежать мерцания градиента
 	var bgSolid = themeMode === 'light' ? '#ffffff' : '#0f1419';

@@ -2653,8 +2653,12 @@ return baseclass.extend({
       };
 
       const updateCheckButton = document.getElementById("proton-update-check");
-      const updateInstallButton = document.getElementById("proton-update-install");
-      const updateReleaseLink = document.getElementById("proton-update-release");
+      const updateInstallButton = document.getElementById(
+        "proton-update-install",
+      );
+      const updateReleaseLink = document.getElementById(
+        "proton-update-release",
+      );
       const updateCurrent = document.getElementById("proton-update-current");
       const updateLatest = document.getElementById("proton-update-latest");
       const updateStatus = document.getElementById("proton-update-status");
@@ -3224,7 +3228,9 @@ return baseclass.extend({
         this._themeSettingsObserver = null;
         this.initThemeSettings();
         setTimeout(() => {
-          window.dispatchEvent(new CustomEvent("proton-theme-settings-mounted"));
+          window.dispatchEvent(
+            new CustomEvent("proton-theme-settings-mounted"),
+          );
         }, 200);
       }, 150);
     });
@@ -3402,6 +3408,7 @@ return baseclass.extend({
       document.documentElement.style.setProperty(
         "--proton-page-max-width",
         "80%",
+        "important",
       );
       return;
     }
@@ -3409,11 +3416,13 @@ return baseclass.extend({
       document.documentElement.style.setProperty(
         "--proton-page-max-width",
         val + "%",
+        "important",
       );
     } else {
       document.documentElement.style.setProperty(
         "--proton-page-max-width",
-        "80%",
+        "990px",
+        "important",
       );
     }
   },
