@@ -38,6 +38,9 @@ function getSensors() {
 	// Canonical device paths backing each thermal_zone, used to dedup the
 	// same physical sensor when it is also exposed via hwmon (see below).
 	let thermalDeviceIds = {};
+	// Thermal-zone type names (lower-cased), used as a fallback dedup when
+	// an hwmon exposes the same sensor under the identical name.
+	let thermalNames = {};
 
 	// === 1. Read thermal_zone sensors ===
 	let thermalZones = findDirs('/sys/class/thermal', 'thermal_zone');
@@ -50,9 +53,18 @@ function getSensors() {
 		if (tempValue != tempValue) continue; // NaN check
 
 		let type = readFileContent(zonePath + '/type') || 'thermal';
+		thermalNames[lc(type)] = true;
 
-		// Record the underlying device so an hwmon node pointing at the
-		// very same device can be recognised as a true duplicate.
+		// Record identities so an hwmon node exposing the same physical
+		// sensor can be recognised as a true duplicate:
+		//  - the zone's own canonical path: the thermal framework's
+		//    auto-created hwmon points its `device` link at the zone
+		//    itself (this is the CPU/thermal_zone <-> hwmon case);
+		//  - the zone's backing device: for sensors exposed both as a
+		//    zone and a sibling hwmon of the same device.
+		let zoneSelfId = realpath(zonePath);
+		if (zoneSelfId != null)
+			thermalDeviceIds[zoneSelfId] = true;
 		let zoneDevId = realpath(zonePath + '/device');
 		if (zoneDevId != null)
 			thermalDeviceIds[zoneDevId] = true;
@@ -114,7 +126,13 @@ function getSensors() {
 			
 			let sensorName = label || deviceName;
 
-			if (!isDuplicate) {
+			// Also treat it as a duplicate when the hwmon exposes the
+			// exact same sensor name as a thermal zone (e.g. both report
+			// "Processor Thermal") — covers setups where the device
+			// symlinks don't line up.
+			let dup = isDuplicate || thermalNames[lc(sensorName)] == true;
+
+			if (!dup) {
 				// Update peak temperature
 				let key = tempPath;
 				if (peakTemps[key] == null || tempValue > peakTemps[key]) {
