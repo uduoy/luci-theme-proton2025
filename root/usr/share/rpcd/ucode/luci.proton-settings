@@ -20,6 +20,7 @@ const VALID_OPTIONS = {
 	zoom: { default: '100', min: 50, max: 150 },
 	transparency: { default: '1', values: ['0', '1'] },
 	border_radius: { default: 'default', values: ['default', 'sharp', 'extra'] },
+	tab_outline: { default: '0', values: ['0', '1'] },
 	animations: { default: '1', values: ['0', '1'] },
 	services_widget: { default: '1', values: ['0', '1'] },
 	temp_widget: { default: '1', values: ['0', '1'] },

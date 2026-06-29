@@ -25,6 +25,7 @@
     "proton-zoom": "zoom",
     "proton-transparency": "transparency",
     "proton-border-radius": "border_radius",
+    "proton-tab-outline": "tab_outline",
     "proton-animations": "animations",
     "proton-services-widget-enabled": "services_widget",
     "proton-temp-widget-enabled": "temp_widget",
@@ -57,6 +58,7 @@
       "table_wrap",
       "log_highlight",
       "custom_font",
+      "tab_outline",
     ];
 
     if (booleanOptions.includes(uciName)) {
@@ -79,6 +81,7 @@
       "table_wrap",
       "log_highlight",
       "custom_font",
+      "tab_outline",
     ];
 
     if (booleanOptions.includes(uciName)) {
@@ -341,6 +344,7 @@
         "proton-zoom": "100",
         "proton-transparency": "true",
         "proton-border-radius": "default",
+        "proton-tab-outline": "false",
         "proton-animations": "true",
         "proton-services-widget-enabled": "true",
         "proton-temp-widget-enabled": "true",

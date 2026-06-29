@@ -125,6 +125,7 @@ return baseclass.extend({
           : "auto",
       accentColor: localStorage.getItem("proton-accent-color") || "blue",
       borderRadius: localStorage.getItem("proton-border-radius") || "default",
+      tabOutline: localStorage.getItem("proton-tab-outline") === "true",
       zoom: localStorage.getItem("proton-zoom") || defaultZoom,
       pageWidth: localStorage.getItem("proton-page-width") || "0",
       animations: localStorage.getItem("proton-animations") !== "false",
@@ -2012,6 +2013,7 @@ return baseclass.extend({
         accentCustom:
           localStorage.getItem("proton-accent-custom") || "#5e9eff",
         borderRadius: localStorage.getItem("proton-border-radius") || "default",
+        tabOutline: localStorage.getItem("proton-tab-outline") === "true",
         zoom: parseInt(localStorage.getItem("proton-zoom") || defaultZoom),
         pageWidth: parseInt(localStorage.getItem("proton-page-width") || "0"),
         animations: localStorage.getItem("proton-animations") !== "false",
@@ -2111,17 +2113,25 @@ return baseclass.extend({
               "Border Radius",
             )}</label>
             <div class="cbi-value-field">
-              <select id="proton-radius-select" class="cbi-input-select">
-                <option value="sharp" ${
-                  settings.borderRadius === "sharp" ? "selected" : ""
-                }>${t("Sharp")}</option>
-                <option value="default" ${
-                  settings.borderRadius === "default" ? "selected" : ""
-                }>${t("Rounded")} (${t("Default")})</option>
-                <option value="extra" ${
-                  settings.borderRadius === "extra" ? "selected" : ""
-                }>${t("Extra Rounded")}</option>
-              </select>
+              <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+                <select id="proton-radius-select" class="cbi-input-select" style="flex: 1 1 auto; min-width: 0;">
+                  <option value="sharp" ${
+                    settings.borderRadius === "sharp" ? "selected" : ""
+                  }>${t("Sharp")}</option>
+                  <option value="default" ${
+                    settings.borderRadius === "default" ? "selected" : ""
+                  }>${t("Rounded")} (${t("Default")})</option>
+                  <option value="extra" ${
+                    settings.borderRadius === "extra" ? "selected" : ""
+                  }>${t("Extra Rounded")}</option>
+                </select>
+                <label for="proton-tab-outline-check" style="display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; cursor: pointer; flex: 0 0 auto; font-size: 0.85rem; color: var(--proton-fg-secondary);">
+                  <input id="proton-tab-outline-check" type="checkbox" ${
+                    settings.tabOutline ? "checked" : ""
+                  }>
+                  ${t("Tab outlines")}
+                </label>
+              </div>
               <div class="cbi-value-description">${t(
                 "Corner rounding style",
               )}</div>
@@ -2529,6 +2539,15 @@ return baseclass.extend({
         const radius = e.target.value;
         localStorage.setItem("proton-border-radius", radius);
         this.applyBorderRadius(radius);
+      });
+
+      const tabOutlineCheck = document.getElementById(
+        "proton-tab-outline-check",
+      );
+      tabOutlineCheck?.addEventListener("change", (e) => {
+        const enabled = e.target.checked;
+        localStorage.setItem("proton-tab-outline", enabled);
+        this.applyTabOutline(enabled);
       });
 
       const zoomRange = document.getElementById("proton-zoom-range");
@@ -3105,6 +3124,7 @@ return baseclass.extend({
         "proton-accent-color",
         "proton-accent-custom",
         "proton-border-radius",
+        "proton-tab-outline",
         "proton-zoom",
         "proton-page-width",
         "proton-animations",
@@ -3194,6 +3214,7 @@ return baseclass.extend({
               "proton-zoom": "100",
               "proton-transparency": "true",
               "proton-border-radius": "default",
+              "proton-tab-outline": "false",
               "proton-animations": "true",
               "proton-services-widget-enabled": "true",
               "proton-temp-widget-enabled": "true",
@@ -3403,6 +3424,7 @@ return baseclass.extend({
 
     this.applyAccentColor(settings.accentColor);
     this.applyBorderRadius(settings.borderRadius);
+    this.applyTabOutline(settings.tabOutline);
     this.applyZoom(settings.zoom);
     this.applyPageWidth(settings.pageWidth);
     this.applyAnimations(settings.animations);
@@ -3511,6 +3533,13 @@ return baseclass.extend({
     } else if (radius === "extra") {
       root.classList.add("proton-radius-extra");
     }
+  },
+
+  applyTabOutline(enabled) {
+    document.documentElement.classList.toggle(
+      "proton-tab-outline",
+      enabled === true || enabled === "true",
+    );
   },
 
   applyZoom(zoom) {

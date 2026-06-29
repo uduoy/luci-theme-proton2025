@@ -3563,14 +3563,22 @@ table.assoclist td[data-title="Скорость приёма / отправки"
     padding: 8px 10px;
     color: var(--proton-fg-secondary);
     font-weight: 500;
-    /* Outline inactive tabs so they read as distinct, clickable tabs. */
-    border: 1px solid var(--proton-border);
+    /* Transparent border by default (no outline); the space is reserved
+       so toggling the "Tab outlines" option doesn't shift the layout. */
+    border: 1px solid transparent;
     /* Thicker accent underline for the active tab (kept transparent here
        so inactive tabs reserve the same space and don't shift). */
     border-bottom: 3px solid transparent;
     border-radius: var(--proton-radius-sm) var(--proton-radius-sm) 0 0;
     transition: var(--proton-transition);
     cursor: pointer;
+}
+
+/* Opt-in outline for the inactive tabs (toggled in the theme settings). */
+:root.proton-tab-outline .cbi-tabmenu>li:not(.cbi-tab)>a {
+    border-top-color: var(--proton-border);
+    border-left-color: var(--proton-border);
+    border-right-color: var(--proton-border);
 }
 
 @media (min-width: 800px) {
@@ -7070,14 +7078,19 @@ body.modal-overlay-active #modal_overlay {
     padding: 12px 20px;
     color: var(--proton-fg-secondary);
     text-decoration: none;
-    /* Outline so the inactive tabs are clearly distinguishable. */
-    border: 1px solid var(--proton-border);
+    /* Transparent by default; the "Tab outlines" option turns it on. */
+    border: 1px solid transparent;
     border-radius: var(--proton-radius-sm);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     font-weight: 500;
     font-size: 0.9rem;
     position: relative;
     overflow: hidden;
+}
+
+/* Opt-in outline for the inactive package-manager tabs. */
+:root.proton-tab-outline #packages .cbi-tabmenu li:not(.cbi-tab):not(.active) a {
+    border-color: var(--proton-border);
 }
 
 #packages .cbi-tabmenu li a::before {

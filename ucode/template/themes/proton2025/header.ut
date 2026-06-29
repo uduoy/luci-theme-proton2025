@@ -76,6 +76,7 @@
 	var r = localStorage.getItem('proton-border-radius');
 	if (r === 'sharp') document.documentElement.classList.add('proton-radius-sharp');
 	else if (r === 'extra') document.documentElement.classList.add('proton-radius-extra');
+	if (localStorage.getItem('proton-tab-outline') === 'true') document.documentElement.classList.add('proton-tab-outline');
 	var a = localStorage.getItem('proton-accent-color') || 'blue';
 	var c = {
 		default: { accent: '#4b5563', hover: '#374151', glow: 'rgba(75, 85, 99, 0.22)', rgb: '75, 85, 99' },

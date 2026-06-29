@@ -163,6 +163,7 @@ window.ProtonTranslations = {
     Default: "По умолчанию",
     "Border Radius": "Скругление углов",
     "Corner rounding style": "Стиль скругления углов",
+    "Tab outlines": "Обводка вкладок",
     Sharp: "Острые",
     Rounded: "Скруглённые",
     "Extra Rounded": "Сильно скруглённые",
