@@ -29,7 +29,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Resolve package version
         run: |
@@ -111,7 +111,7 @@ jobs:
           ls -lah "$GITHUB_WORKSPACE/dist/$PACKAGE_FORMAT"
 
       - name: Upload ${{ matrix.package_format }} artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.artifact_name }}
           path: dist/${{ matrix.package_format }}/*
@@ -124,7 +124,7 @@ jobs:
 
     steps:
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: luci-theme-proton2025-*
           path: dist
@@ -134,30 +134,22 @@ jobs:
         run: ls -lah dist
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           files: dist/*
           body: |
             ## Proton2025 Theme ${{ github.ref_name }}
 
-            ### Packages
-            - **`.ipk`** — for OpenWrt builds with `opkg`
-            - **`.apk`** — for OpenWrt builds with `apk`
-
             ### Installation
 
-            **opkg (IPK):**
+            **OpenWrt ≤ 23.05 (`.ipk` / `opkg`)**
             ```bash
             opkg install luci-theme-proton2025_*.ipk
             ```
 
-            **apk (APK):**
+            **OpenWrt ≥ 24.10 (`.apk` / `apk`)**
             ```bash
             apk add --allow-untrusted luci-theme-proton2025-*.apk
             ```
-
-            ### Notes
-            - Packages are built by the official OpenWrt SDK.
-            - APK artifacts are no longer repacked manually as `tar.gz` archives.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
