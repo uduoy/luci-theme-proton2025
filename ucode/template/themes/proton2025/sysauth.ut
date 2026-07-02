@@ -252,23 +252,72 @@
 		<form class="login-form" method="post" action="{{ dispatcher.build_url(...ctx.request_path) }}">
 			<div class="form-group">
 				<label for="luci_username">{{ _('Username') }}</label>
-				<input type="text" id="luci_username" name="luci_username"
-					value="{{ fuser ?? 'root' }}" autocomplete="username"
-					autocapitalize="off" autofocus />
+				<div class="login-input-wrap">
+					<span class="login-input-icon" aria-hidden="true">
+						<svg viewBox="0 0 24 24" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M20 21a8 8 0 0 0-16 0" />
+							<circle cx="12" cy="7" r="4" fill="none" />
+						</svg>
+					</span>
+					<input type="text" id="luci_username" name="luci_username"
+						value="{{ fuser ?? 'root' }}" autocomplete="username"
+						autocapitalize="off" autofocus />
+				</div>
 			</div>
 
 			<div class="form-group">
 				<label for="luci_password">{{ _('Password') }}</label>
-				<input type="password" id="luci_password" name="luci_password"
-					autocomplete="current-password" />
+				<div class="login-input-wrap login-password-wrap">
+					<span class="login-input-icon" aria-hidden="true">
+						<svg viewBox="0 0 24 24" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+							<rect x="5" y="10" width="14" height="10" rx="2" fill="none" />
+							<path d="M8 10V7a4 4 0 0 1 8 0v3" />
+						</svg>
+					</span>
+					<input type="password" id="luci_password" name="luci_password"
+						autocomplete="current-password" />
+					<button class="login-password-toggle" type="button" aria-label="{{ _('Show password') }}" aria-pressed="false">
+						<svg viewBox="0 0 24 24" focusable="false" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+							<circle cx="12" cy="12" r="3" fill="none" />
+							<path class="login-eye-slash" d="M4 4l16 16" />
+						</svg>
+					</button>
+				</div>
 			</div>
 
-			<button type="submit">{{ _('Log in') }}</button>
+			<button type="submit">
+				<svg class="login-submit-icon" viewBox="0 0 24 24" focusable="false" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M14 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3" />
+					<path d="M10 17l5-5-5-5" />
+					<path d="M15 12H3" />
+				</svg>
+				<span>{{ _('Log in') }}</span>
+			</button>
 		</form>
+
+		<div class="login-powered">
+			<span>Powered by OpenWrt</span>
+		</div>
 	</div>
 </div>
 
 <script>
+// Password visibility toggle
+(function () {
+	var password = document.getElementById('luci_password');
+	var toggle = document.querySelector('.login-password-toggle');
+
+	if (!password || !toggle) return;
+
+	toggle.addEventListener('click', function () {
+		var visible = password.type === 'text';
+		password.type = visible ? 'password' : 'text';
+		toggle.setAttribute('aria-pressed', visible ? 'false' : 'true');
+		password.focus();
+	});
+})();
+
 // Mobile keyboard stability
 // Avoid scrollIntoView({behavior:'smooth'}) + window.resize loops which can hide/show the keyboard.
 // Use visualViewport when available and only do minimal, non-animated adjustments.
