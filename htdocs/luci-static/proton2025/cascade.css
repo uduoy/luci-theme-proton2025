@@ -2525,6 +2525,20 @@ table.assoclist td[data-title="Скорость приёма / отправки"
     gap: 0;
 }
 
+/* Keep the outer "Wireless Overview" section panel, but strip the INNER table
+   containers of their own chrome — one of the table/thead/tbody/tfoot draws a
+   background that shows through the gap between the two radio boxes as an
+   extra horizontal block. The radio (data-radio-device) and network
+   (data-section-id) row-cards keep their own styling. */
+#cbi-wireless table.cbi-section-table,
+#cbi-wireless .cbi-section-thead,
+#cbi-wireless .cbi-section-tbody,
+#cbi-wireless .cbi-section-tfoot {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
 /* Радио модули - заголовки карточек (radio0, MT7981_1_1, и т.д.) */
 #cbi-wireless tr[data-radio-device] {
     display: flex;
@@ -4290,6 +4304,103 @@ body[data-page^="admin-status"] .cbi-section>div>div[style*="display:grid"]>.ifa
 .network-status-table .ifacebox-body {
     word-wrap: break-word;
     overflow-wrap: break-word;
+}
+
+/* =====================================================
+   Status → Overview → Wireless radio cards
+   Stock luci-mod-status renders each radio as
+   .network-status-table > .ifacebox { .ifacebox-head, .ifacebox-body },
+   where the body holds a summary itemlist <span> plus a <div> of per-network
+   .ifacebadge sub-cards.
+
+   The shared .ifacebox base rule uses align-items:center (fine for tiny port
+   cards), which makes the body shrink-to-content and centre itself; with a
+   long encryption string the body grows wider than the card and overflows on
+   BOTH sides — clipped by overflow:hidden (the left of every label, the right
+   of the encryption). The nested badges were also inline-flex with no
+   wrapping. Stretch the parts to full width, left-align, stack the networks
+   with even spacing, and wrap long strings.
+   ===================================================== */
+.network-status-table > .ifacebox {
+    align-items: stretch;
+}
+
+.network-status-table > .ifacebox > .ifacebox-body {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 16px;
+    text-align: left;
+    min-width: 0;
+}
+
+/* Radio summary itemlist (Type / Bitrate / Channel / Country / Noise / TX) */
+.network-status-table > .ifacebox > .ifacebox-body > span {
+    line-height: 1.75;
+    overflow-wrap: anywhere;
+}
+
+/* Container of the per-network sub-cards */
+.network-status-table > .ifacebox > .ifacebox-body > div {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+}
+
+/* Each network → full-width sub-card whose text wraps instead of overflowing */
+.network-status-table .ifacebadge {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 12px 14px;
+    line-height: 1.75;
+    background: var(--proton-bg-secondary);
+}
+
+.network-status-table .ifacebadge > img {
+    flex: 0 0 auto;
+    width: 22px;
+    height: 22px;
+    margin-top: 3px;
+}
+
+.network-status-table .ifacebadge > span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+/* L.itemlist wraps every "Label: value" pair in <span class="nowrap">, and the
+   global rule forces `white-space: nowrap !important` — which is exactly why
+   the long encryption string couldn't wrap and got clipped. Re-allow wrapping
+   inside these cards (higher specificity beats the global !important). */
+.network-status-table .ifacebox-body .nowrap {
+    white-space: normal !important;
+}
+
+/* =====================================================
+   luci-app-wifihistory (Status → Station History)
+   Otherwise the table sizes to content and slightly overflows. Rather than a
+   scrollbar or a rigid fixed layout, only let the two timestamp columns
+   (First seen / Last seen) wrap — that trims the widest columns so the whole
+   table fits the card while everything else keeps its natural layout.
+   ===================================================== */
+body[data-page="admin-status-wifihistory"] #wifi_history_table {
+    max-width: 100%;
+}
+
+body[data-page="admin-status-wifihistory"] #wifi_history_table th:nth-child(6),
+body[data-page="admin-status-wifihistory"] #wifi_history_table th:nth-child(7),
+body[data-page="admin-status-wifihistory"] #wifi_history_table td:nth-child(6),
+body[data-page="admin-status-wifihistory"] #wifi_history_table td:nth-child(7),
+body[data-page="admin-status-wifihistory"] #wifi_history_table td:nth-child(6) .nowrap,
+body[data-page="admin-status-wifihistory"] #wifi_history_table td:nth-child(7) .nowrap {
+    white-space: normal !important;
+    overflow-wrap: anywhere;
 }
 
 /* =====================================================
