@@ -2088,17 +2088,23 @@ tr:hover td {
 /* LuCI named tables render the first "Name" column as a pseudo-cell. */
 @media only screen and (min-width: 801px) {
 
+    /* Метрики и фон повторяют настоящие th/td компактных section-table
+       (см. "Tighter header and data cells" ниже), иначе первая колонка
+       выглядит «отклеенной» от таблицы: без фона шапки, с другими
+       отступами и вертикальным смещением. */
     .cbi-section-table .cbi-section-table-titles.named::before,
     .cbi-section-table .cbi-section-table-descr.named::before {
         content: attr(data-title);
         display: table-cell;
-        padding: 14px 16px;
+        padding: 8px 10px;
         font-weight: 600;
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.03em;
-        color: var(--proton-muted);
-        border-bottom: 2px solid var(--proton-border);
+        font-size: 0.82rem;
+        text-transform: none;
+        letter-spacing: 0;
+        color: var(--proton-fg-secondary);
+        background: var(--proton-bg-secondary);
+        border-bottom: 1px solid var(--proton-border);
+        border-radius: var(--proton-radius-sm) 0 0 0;
         text-align: left;
         vertical-align: middle;
         white-space: nowrap;
@@ -2107,9 +2113,9 @@ tr:hover td {
     .cbi-section-table .cbi-section-table-row[data-title]::before {
         content: attr(data-title);
         display: table-cell;
-        padding: 12px 16px;
+        padding: 8px 10px;
         border-bottom: 1px solid var(--proton-border-light);
-        vertical-align: top;
+        vertical-align: middle;
         font-weight: 600;
         color: var(--proton-fg);
         text-align: left;
@@ -2122,6 +2128,32 @@ tr:hover td {
 
     .cbi-section-table .cbi-section-table-row:last-child::before {
         border-bottom: none;
+    }
+
+    /* Когда имя рендерится псевдо-ячейкой, визуально первая в полосе шапки —
+       она, и скругление верхнего левого угла на первом настоящем th лишнее:
+       оно рисуется посреди полосы. */
+    .cbi-section-table:not(.proton-native-name-col) .cbi-section-table-titles.named > th:first-child {
+        border-radius: 0;
+    }
+
+    /* Форки LuCI (immortalwrt) рендерят колонку имени НАСТОЯЩИМИ ячейками
+       (<th>Name</th> в заголовке и <td class="cbi-section-table-titles"> в
+       строках), при этом data-title на строке тоже ставится. Псевдо-ячейки
+       выше тогда дублируют имя и сдвигают заголовок на колонку — подавляем
+       их, если в таблице есть настоящая ячейка имени. Класс ставит
+       custom-pages.js (updateNativeNameColumns): CSS :has() не поддерживается
+       в старых браузерах (Firefox < 121, Chrome < 105). */
+    .cbi-section-table.proton-native-name-col .cbi-section-table-titles.named::before,
+    .cbi-section-table.proton-native-name-col .cbi-section-table-descr.named::before,
+    .cbi-section-table.proton-native-name-col .cbi-section-table-row[data-title]::before {
+        content: none;
+    }
+
+    /* ...а саму настоящую ячейку имени оформляем как псевдо-ячейку темы */
+    .cbi-section-table .cbi-section-table-row > .td.cbi-section-table-titles {
+        font-weight: 600;
+        color: var(--proton-fg);
     }
 }
 
@@ -2194,6 +2226,87 @@ table.cbi-section-table .cbi-section-actions .cbi-button+.cbi-button {
 
 body:not([data-page^="admin-status"]) .cbi-tblsection {
     overflow-x: auto;
+}
+
+/* Some GridSection tables have too many columns to fit the page width (e.g. the
+   ZeroTier network list — ~10 flag columns, worse once headers are translated).
+   They can't fit and custom-pages.js won't widen the page for them, so give the
+   inevitable horizontal scroll a clean accent-tinted scrollbar. */
+body:not([data-page^="admin-status"]) .cbi-tblsection::-webkit-scrollbar {
+    height: 10px;
+}
+/* --proton-accent-rgb задаётся в :root обеих тем (94,158,255 dark /
+   75,85,99 light), но на случай кастомных сборок/старого кэша даём
+   fallback прямо в var(), иначе rgba() станет невалидной и скроллбар
+   отрисуется системным. */
+body:not([data-page^="admin-status"]) .cbi-tblsection::-webkit-scrollbar-thumb {
+    background: rgba(var(--proton-accent-rgb, 94, 158, 255), 0.45);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    background-clip: padding-box;
+}
+body:not([data-page^="admin-status"]) .cbi-tblsection::-webkit-scrollbar-thumb:hover {
+    background: rgba(var(--proton-accent-rgb, 94, 158, 255), 0.7);
+    background-clip: padding-box;
+}
+
+/* Squeeze mode for GridSection tables wider than the content area. The class
+   is set by custom-pages.js only when the table's min-content width exceeds
+   its card, so normal tables are unaffected. Tighter cells, smaller header
+   font, hyphenation for long translated header words, no authored percent
+   widths and wrapping action buttons — together this usually removes the
+   horizontal scroll entirely (e.g. ZeroTier's ~10 flag columns in Russian). */
+@media only screen and (min-width: 801px) {
+    body.proton-custom-page .cbi-tblsection.proton-grid-squeeze {
+        padding-left: 10px;
+        padding-right: 10px;
+        /* мгновенно, без анимации: иначе 250ms прыжок вёрстки и мигание
+           скроллбара при включении режима */
+        transition: none;
+    }
+
+    body.proton-custom-page .proton-grid-squeeze table.cbi-section-table th {
+        font-size: 11px;
+        line-height: 1.25;
+        padding: 6px 5px;
+        hyphens: auto;
+    }
+
+    body.proton-custom-page .proton-grid-squeeze table.cbi-section-table td {
+        padding: 6px 5px;
+    }
+
+    /* !important обязателен: перебиваем ИНЛАЙНОВЫЙ style="width: N%",
+       который form.js ставит на th/td из опции o.width приложения
+       (у ZeroTier колонка ID сети держит 20% ширины таблицы при
+       содержимом вдвое уже — в ужатом режиме это непозволительно). */
+    body.proton-custom-page .proton-grid-squeeze table.cbi-section-table th[style*="%"],
+    body.proton-custom-page .proton-grid-squeeze table.cbi-section-table td[style*="%"] {
+        width: auto !important;
+    }
+
+    /* !important обязателен: базовые компакт-правила кнопок действий
+       (table.cbi-section-table td.cbi-section-actions .cbi-button выше по
+       файлу) сами используют !important — без него эти значения проиграют
+       при равной важности. */
+    body.proton-custom-page .proton-grid-squeeze td.cbi-section-actions .cbi-button,
+    body.proton-custom-page .proton-grid-squeeze td.cbi-section-actions .btn,
+    body.proton-custom-page .proton-grid-squeeze td.cbi-section-actions button {
+        padding: 3px 6px !important;
+        font-size: 11px !important;
+    }
+
+    body.proton-custom-page .proton-grid-squeeze td.cbi-section-actions>div {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        row-gap: 4px;
+    }
+
+    body.proton-custom-page .proton-grid-squeeze .cbi-section-table-titles.named::before,
+    body.proton-custom-page .proton-grid-squeeze .cbi-section-table-row[data-title]::before {
+        padding: 6px 5px;
+        font-size: 11px;
+    }
 }
 
 /* Status page: Associated Stations table can contain very long labels (AP name + phy).
@@ -13121,6 +13234,25 @@ body.proton-custom-page table th,
 body.proton-custom-page table td {
     font-size: 12px;
     padding: 8px 10px;
+}
+
+/* Псевдо-ячейки имени named-таблиц (upstream LuCI, см. блок "LuCI named
+   tables" выше) должны ужиматься вместе с настоящими th/td, иначе первая
+   колонка становится выше и шире остальных. */
+body.proton-custom-page .cbi-section-table .cbi-section-table-titles.named::before,
+body.proton-custom-page .cbi-section-table .cbi-section-table-descr.named::before,
+body.proton-custom-page .cbi-section-table .cbi-section-table-row[data-title]::before {
+    font-size: 12px;
+    padding: 8px 10px;
+}
+
+/* Бутстрап-оверрайд выше даёт .th/.td кастомных страниц border-top — в
+   section-table он рисует лишнюю линию над полосой шапки (а над псевдо-
+   ячейкой имени её нет, линия обрывается). Внутри карточки шапке верхняя
+   граница не нужна вовсе. */
+body.proton-custom-page .cbi-section-table .cbi-section-table-titles th,
+body.proton-custom-page .cbi-section-table .cbi-section-table-titles .th {
+    border-top: none;
 }
 
 /* Collapse empty cbi-section-table-descr rows on custom pages.

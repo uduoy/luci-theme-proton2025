@@ -62,6 +62,15 @@
   let adjustDebounceTimer = null;
   const DEBOUNCE_DELAY = 150;
 
+  // Константы вёрстки (держать в синхроне с CSS темы)
+  const PROTON_PAGE_MAX_WIDTH = 990; // --proton-page-max-width
+  const PROTON_PAGE_GUTTER = 20; // --proton-page-gutter
+  // Запас справа, добавляемый к контенту при расширении #maincontent
+  const PROTON_GRID_GUTTER = 40;
+  // Ниже этой ширины вьюпорта включается мобильная адаптивная вёрстка:
+  // контейнер не расширяем, squeeze-режим таблиц не применяем
+  const PROTON_MOBILE_BREAKPOINT = 800;
+
   function debouncedAdjust() {
     clearTimeout(adjustDebounceTimer);
     adjustDebounceTimer = setTimeout(adjustContainerWidth, DEBOUNCE_DELAY);
@@ -150,6 +159,105 @@
     return naturalWidth;
   }
 
+  /**
+   * Помечает CBI-таблицы, в которых колонка имени отрендерена НАСТОЯЩИМИ
+   * ячейками, классом `proton-native-name-col`.
+   *
+   * Зачем: форки LuCI (immortalwrt) рендерят колонку имени named-таблиц
+   * реальными ячейками (<th>Name</th> + <td class="cbi-section-table-titles">),
+   * при этом data-title на строке тоже ставится. Тема в этом случае должна
+   * подавить свои псевдо-ячейки ::before (см. cascade.css), иначе имя
+   * дублируется и заголовок съезжает на колонку. Класс ставим из JS, потому
+   * что CSS :has() не поддерживается в старых браузерах (Firefox < 121,
+   * Chrome < 105, старые Android WebView).
+   *
+   * Когда вызывается: синхронно в начале adjustContainerWidth() (псевдо-
+   * колонка влияет на измеряемую ширину таблиц) и с дебаунсом из
+   * MutationObserver на #maincontent / window.load — на любых страницах,
+   * т.к. псевдо-ячейки имени — глобальный стиль темы.
+   */
+  function updateNativeNameColumns() {
+    const tables = document.querySelectorAll(".cbi-section-table");
+    tables.forEach((table) => {
+      const hasNativeNameCell = !!table.querySelector(
+        ".cbi-section-table-row > .td.cbi-section-table-titles",
+      );
+      table.classList.toggle("proton-native-name-col", hasNativeNameCell);
+    });
+  }
+
+  let nameColDebounceTimer = null;
+  function debouncedNameColUpdate() {
+    clearTimeout(nameColDebounceTimer);
+    nameColDebounceTimer = setTimeout(updateNativeNameColumns, DEBOUNCE_DELAY);
+  }
+
+  /**
+   * Включает компактный режим (класс `proton-grid-squeeze`) для GridSection-
+   * таблиц, которым не хватает места в карточке.
+   *
+   * Назначение: широкие таблицы (например, список сетей ZeroTier с ~10
+   * flag-колонками, ещё шире с русскими заголовками) не влезают в контент-
+   * область. Класс включает в cascade.css компактный режим — меньше отступы
+   * и шрифт заголовков, перенос слов, снятие авторских процентных ширин,
+   * кнопки действий в столбик — который обычно убирает горизонтальный
+   * скролл целиком.
+   *
+   * Производительность: запись и чтение геометрии разнесены по фазам
+   * (снять классы → измерить → применить), поэтому принудительных reflow
+   * ровно два на вызов независимо от числа секций. Первое чтение
+   * scrollWidth после фазы записи само форсирует общий reflow — отдельный
+   * трюк `void offsetWidth` не нужен.
+   *
+   * Стабильность: решение каждый раз принимается заново от «неужатого»
+   * состояния, поэтому класс не мерцает между вызовами.
+   *
+   * Когда вызывается: из adjustContainerWidth() после выбора ширины
+   * контейнера — т.е. при загрузке, resize (с дебаунсом), кликах по табам
+   * и мутациях DOM в #maincontent (AJAX-обновления таблиц).
+   *
+   * @param {HTMLElement} maincontent — контейнер #maincontent
+   */
+  function updateTableSqueeze(maincontent) {
+    const sections = maincontent.querySelectorAll(".cbi-tblsection");
+    if (!sections.length) {
+      return;
+    }
+
+    // Фаза записи: снять класс со всех секций
+    sections.forEach((section) => {
+      section.classList.remove("proton-grid-squeeze");
+    });
+
+    // Фаза чтения: первый scrollWidth форсирует один общий reflow
+    const overflowing = [];
+    sections.forEach((section) => {
+      if (section.scrollWidth > section.clientWidth + 1) {
+        overflowing.push(section);
+      }
+    });
+
+    // Фаза записи: применить класс только переполненным
+    overflowing.forEach((section) => {
+      section.classList.add("proton-grid-squeeze");
+    });
+  }
+
+  /**
+   * Снимает `proton-grid-squeeze` со всех секций внутри контейнера.
+   *
+   * Используется перед измерением естественной ширины контента (squeeze
+   * искажает метрики) и при уходе в мобильную вёрстку, где компактный
+   * режим не применяется.
+   *
+   * @param {HTMLElement} maincontent — контейнер #maincontent
+   */
+  function clearTableSqueeze(maincontent) {
+    maincontent
+      .querySelectorAll(".cbi-tblsection.proton-grid-squeeze")
+      .forEach((section) => section.classList.remove("proton-grid-squeeze"));
+  }
+
   // Расширяет контейнер вправо если контент требует больше места
   function adjustContainerWidth() {
     const maincontent = document.getElementById("maincontent");
@@ -158,17 +266,21 @@
     }
 
     // На мобильных экранах не расширяем — там своя адаптивная вёрстка
-    if (window.innerWidth < 800) {
+    if (window.innerWidth < PROTON_MOBILE_BREAKPOINT) {
       maincontent.style.maxWidth = "";
       maincontent.style.marginLeft = "";
       maincontent.style.marginRight = "";
+      clearTableSqueeze(maincontent);
       return;
     }
 
-    // Сбрасываем стили для измерения
+    // Сбрасываем стили для измерения. Псевдо-колонку имени определяем до
+    // измерений — она влияет на естественную ширину таблиц.
+    updateNativeNameColumns();
     maincontent.style.maxWidth = "";
     maincontent.style.marginLeft = "";
     maincontent.style.marginRight = "";
+    clearTableSqueeze(maincontent);
 
     // Получаем реальное положение контейнера после сброса стилей
     const rect = maincontent.getBoundingClientRect();
@@ -176,8 +288,6 @@
 
     // Вычисляем параметры
     const viewportWidth = window.innerWidth;
-    const standardMaxWidth = 990; // --proton-page-max-width
-    const gutter = 20; // --proton-page-gutter
 
     // Находим самый широкий элемент внутри (включая tabmenu)
     let maxContentWidth = 0;
@@ -208,20 +318,30 @@
       maxContentWidth = maincontentScroll;
     }
 
-    // Если контент шире стандартной ширины - расширяем вправо
-    if (maxContentWidth > standardMaxWidth) {
-      const availableWidth = viewportWidth - realLeftOffset - gutter;
-      const newWidth = Math.min(maxContentWidth + 40, availableWidth);
+    // Расширяем вправо ТОЛЬКО если контент тогда помещается целиком (без
+    // горизонтального скролла). Таблица шире доступного вьюпорта (например,
+    // грид на ~10 колонок с длинными переведёнными заголовками) не поместится
+    // как её ни расширяй — расширение там лишь сдвигает всю страницу и всё
+    // равно оставляет скролл. В этом случае оставляем стандартную ширину и даём
+    // таблице скроллиться внутри своей карточки.
+    if (maxContentWidth > PROTON_PAGE_MAX_WIDTH) {
+      const availableWidth = viewportWidth - realLeftOffset - PROTON_PAGE_GUTTER;
 
-      maincontent.style.maxWidth = newWidth + "px";
-      maincontent.style.marginLeft = realLeftOffset + "px";
-      maincontent.style.marginRight = "auto";
+      if (maxContentWidth + PROTON_GRID_GUTTER <= availableWidth) {
+        maincontent.style.maxWidth = maxContentWidth + PROTON_GRID_GUTTER + "px";
+        maincontent.style.marginLeft = realLeftOffset + "px";
+        maincontent.style.marginRight = "auto";
+      }
+      // иначе #maincontent остаётся на стандартной ширине (сброшен выше)
     }
+
+    // Ширина контейнера определена — ужимаем таблицы, которые в неё не влезли
+    updateTableSqueeze(maincontent);
   }
 
   function applyCustomPageClass() {
     const isCustom = detectCustomPage();
-    const isMobile = window.innerWidth < 800;
+    const isMobile = window.innerWidth < PROTON_MOBILE_BREAKPOINT;
 
     // На мобильных экранах не применяем кастомные стили
     if (isMobile) {
@@ -231,6 +351,7 @@
         maincontent.style.maxWidth = "";
         maincontent.style.marginLeft = "";
         maincontent.style.marginRight = "";
+        clearTableSqueeze(maincontent);
       }
       return;
     }
@@ -259,16 +380,21 @@
 
   // Дополнительно после полной загрузки страницы (включая все ресурсы)
   window.addEventListener("load", () => {
+    // Псевдо-колонки имени — глобальный стиль, обновляем на любых страницах
+    debouncedNameColUpdate();
     if (detectCustomPage()) {
       debouncedAdjust();
     }
   });
 
-  // При изменении размера окна — пересчитываем всё (включая добавление/удаление класса)
+  // При изменении размера окна — пересчитываем всё (включая добавление/
+  // удаление класса). Дебаунс обязателен: applyCustomPageClass в итоге
+  // зовёт adjustContainerWidth/updateTableSqueeze с принудительными
+  // reflow — без дебаунса быстрый resize лагает на слабых роутерах.
   let resizeTimer = null;
   window.addEventListener("resize", () => {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(applyCustomPageClass, 100);
+    resizeTimer = setTimeout(applyCustomPageClass, DEBOUNCE_DELAY);
   });
 
   // При клике по JS-табам (не ссылкам — те перезагружают страницу)
@@ -317,8 +443,12 @@
     attributeFilter: ["data-page"],
   });
 
-  // Наблюдаем за изменениями в maincontent (динамическая загрузка)
+  // Наблюдаем за изменениями в maincontent (динамическая загрузка).
+  // Псевдо-колонки имени обновляем на любых страницах (глобальный стиль);
+  // observer следит только за childList, так что toggle класса на таблицах
+  // не порождает цикл.
   const contentObserver = new MutationObserver(() => {
+    debouncedNameColUpdate();
     if (detectCustomPage()) {
       debouncedAdjust();
     }
@@ -332,6 +462,7 @@
         childList: true,
         subtree: true,
       });
+      debouncedNameColUpdate();
       if (detectCustomPage()) {
         debouncedAdjust();
       }
