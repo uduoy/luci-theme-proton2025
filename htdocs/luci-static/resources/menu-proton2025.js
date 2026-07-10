@@ -1982,6 +1982,7 @@ return baseclass.extend({
     // Ensure we attach only once per page
     if (this._themeSettingsInit) return;
     this._themeSettingsInit = true;
+    window.__protonSettingsMounted = true;
 
     const tryMount = () => {
       if (document.getElementById("proton-theme-settings")) {
@@ -3347,7 +3348,7 @@ return baseclass.extend({
             });
 
             Object.entries(defaults).forEach(([key, value]) => {
-              if (value) {
+              if (value !== undefined && value !== null) {
                 localStorage.setItem(key, value);
               }
             });

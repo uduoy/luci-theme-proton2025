@@ -149,8 +149,14 @@
     }
 
     function handler(e) {
+        // Skip elements inside the Proton settings panel — they are handled
+        // directly by menu-proton2025.js which applies CSS changes immediately.
         var el = e.target;
         if (!el) return;
+
+        if (window.__protonSettingsMounted && el.closest && el.closest("#proton-theme-settings")) {
+            return;
+        }
 
         if (el.tagName !== "SELECT" && el.tagName !== "INPUT") {
             return;

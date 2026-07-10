@@ -238,6 +238,12 @@
   function flushPendingChangesOnPageHide() {
     if (!hasPendingChanges()) return;
 
+    // Cancel any pending debounced save to avoid double-save race.
+    if (saveTimeout) {
+      clearTimeout(saveTimeout);
+      saveTimeout = null;
+    }
+
     callSettingsRpc(
       "setSettings",
       { settings: { ...pendingChanges } },
@@ -368,7 +374,7 @@
 
       // Apply defaults to localStorage
       Object.entries(defaults).forEach(([key, value]) => {
-        if (value) {
+        if (value !== undefined && value !== null) {
           originalSetItem(key, value);
         }
       });
@@ -379,7 +385,7 @@
         Object.keys(SETTINGS_MAP).forEach((key) => {
           const uciName = SETTINGS_MAP[key];
           const defaultValue = defaults[key];
-          resetData[uciName] = defaultValue
+          resetData[uciName] = (defaultValue !== undefined && defaultValue !== null)
             ? localToUci(key, defaultValue)
             : "";
         });
@@ -408,14 +414,17 @@
     setTimeout(syncFromUci, 1000);
   }
 
-  // Re-sync when tab becomes visible (user might have changed settings in another tab)
+  // Re-sync when tab becomes visible (user might have changed settings in another tab).
+  // Only re-sync if there are no pending local changes to avoid overwriting them.
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") {
       flushPendingChangesOnPageHide();
       return;
     }
 
-    syncFromUci();
+    if (!hasPendingChanges()) {
+      syncFromUci();
+    }
   });
 
   window.addEventListener("pagehide", flushPendingChangesOnPageHide);

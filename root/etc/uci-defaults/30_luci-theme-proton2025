@@ -39,9 +39,11 @@ set_proton_default() {
 
 set_proton_default mode 'auto'
 set_proton_default accent 'blue'
+set_proton_default accent_custom '#5e9eff'
 set_proton_default zoom '100'
 set_proton_default transparency '1'
 set_proton_default border_radius 'default'
+set_proton_default tab_outline '0'
 set_proton_default animations '1'
 set_proton_default services_widget '1'
 set_proton_default temp_widget '1'
@@ -49,8 +51,14 @@ set_proton_default services_log '0'
 set_proton_default table_wrap '1'
 set_proton_default log_highlight '1'
 set_proton_default page_width '0'
+set_proton_default background_pattern 'none'
+set_proton_default pattern_scale '100'
 set_proton_default custom_font '1'
 set_proton_default login_animation 'particles'
+set_proton_default login_branding '0'
+set_proton_default login_name ''
+set_proton_default login_logo ''
+set_proton_default login_logo_only '0'
 
 uci commit proton2025
 

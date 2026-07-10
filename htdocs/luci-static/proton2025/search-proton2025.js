@@ -993,12 +993,14 @@
   }
 
   function escapeHtml(unsafe) {
-    return (unsafe || "").replace(/[&<"']/g, function (m) {
+    return (unsafe || "").replace(/[&<>"']/g, function (m) {
       switch (m) {
         case "&":
           return "&amp;";
         case "<":
           return "&lt;";
+        case ">":
+          return "&gt;";
         case '"':
           return "&quot;";
         case "'":

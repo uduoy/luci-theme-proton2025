@@ -507,9 +507,9 @@
     return text.replace(/\x1b\[[0-9;]*m|\[\d+(?:;\d+)*m/g, "");
   }
 
-  var ESC_MAP = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" };
+  var ESC_MAP = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
   function escapeHtml(text) {
-    return text.replace(/[&<>"]/g, function (c) {
+    return text.replace(/[&<>"']/g, function (c) {
       return ESC_MAP[c];
     });
   }
@@ -1822,7 +1822,7 @@
       }
     }
   });
-  rebootObserver.observe(document.body, { attributes: true });
+  rebootObserver.observe(document.body, { attributes: true, attributeFilter: ["data-page"] });
 
   // Also watch for button injection
   const buttonObserver = new MutationObserver(function () {

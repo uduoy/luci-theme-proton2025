@@ -74,6 +74,12 @@ function saveCache(req) {
 			return clearCache();
 		}
 
+		// Limit cache size to prevent DoS via filling /tmp
+		const MAX_CACHE_SIZE = 10_000_000;
+		if (length(cache) > MAX_CACHE_SIZE || length(meta) > MAX_CACHE_SIZE) {
+			return { error: 'Cache exceeds maximum size of ' + MAX_CACHE_SIZE + ' bytes' };
+		}
+
 		const cacheSaved = replaceFileAtomically(CACHE_PATH, CACHE_TMP_PATH, cache);
 		const metaSaved = replaceFileAtomically(META_PATH, META_TMP_PATH, meta);
 
