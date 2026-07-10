@@ -266,34 +266,36 @@
       // Set flag to prevent sync loop
       isSyncingFromUci = true;
 
-      // A deliberately-picked-but-not-yet-saved local value is already
-      // protected: syncFromUci() bails out at the top while hasPendingChanges()
-      // is true (that queue is persisted in sessionStorage across navigation).
-      // So by the time we get here UCI is authoritative for every option, the
-      // custom accent included — no per-option guard. Guarding the accent here
-      // used to make it "sticky" to whatever the browser had in localStorage
-      // and ignore the value shipped in /etc/config/proton2025 on a freshly
-      // flashed device (accent=custom + a stale/empty accent_custom fell back
-      // to the built-in #5e9eff instead of the configured colour).
-      for (const [uciName, uciValue] of Object.entries(settings)) {
-        const localKey = UCI_TO_LOCAL[uciName];
-        if (!localKey) continue;
+      try {
+        // A deliberately-picked-but-not-yet-saved local value is already
+        // protected: syncFromUci() bails out at the top while hasPendingChanges()
+        // is true (that queue is persisted in sessionStorage across navigation).
+        // So by the time we get here UCI is authoritative for every option, the
+        // custom accent included — no per-option guard. Guarding the accent here
+        // used to make it "sticky" to whatever the browser had in localStorage
+        // and ignore the value shipped in /etc/config/proton2025 on a freshly
+        // flashed device (accent=custom + a stale/empty accent_custom fell back
+        // to the built-in #5e9eff instead of the configured colour).
+        for (const [uciName, uciValue] of Object.entries(settings)) {
+          const localKey = UCI_TO_LOCAL[uciName];
+          if (!localKey) continue;
 
-        const localValue = uciToLocal(uciName, uciValue);
-        const currentLocal = localStorage.getItem(localKey);
+          const localValue = uciToLocal(uciName, uciValue);
+          const currentLocal = localStorage.getItem(localKey);
 
-        // UCI takes precedence - update localStorage if different
-        if (currentLocal !== localValue) {
-          originalSetItem(localKey, localValue); // Use original to avoid triggering save back
-          updated = true;
+          // UCI takes precedence - update localStorage if different
+          if (currentLocal !== localValue) {
+            originalSetItem(localKey, localValue); // Use original to avoid triggering save back
+            updated = true;
+          }
         }
-      }
 
-      isSyncingFromUci = false;
-
-      if (updated) {
-        // Dispatch event for UI to update
-        window.dispatchEvent(new CustomEvent("proton-settings-synced"));
+        if (updated) {
+          // Dispatch event for UI to update
+          window.dispatchEvent(new CustomEvent("proton-settings-synced"));
+        }
+      } finally {
+        isSyncingFromUci = false;
       }
     } catch (err) {
       console.warn("[Proton2025] Failed to sync from UCI:", err);
@@ -348,7 +350,7 @@
         "proton-services-log": "false",
         "proton-table-wrap": "false",
         "proton-log-highlight": "true",
-        "proton-page-width": "",
+        "proton-page-width": "0",
         "proton-background-pattern": "none",
         "proton-pattern-scale": "100",
         "proton-custom-font": "true",

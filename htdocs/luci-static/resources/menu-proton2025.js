@@ -3338,7 +3338,7 @@ return baseclass.extend({
               "proton-services-log": "false",
               "proton-table-wrap": "false",
               "proton-log-highlight": "true",
-              "proton-page-width": "",
+              "proton-page-width": "0",
               "proton-custom-font": "true",
             };
 
