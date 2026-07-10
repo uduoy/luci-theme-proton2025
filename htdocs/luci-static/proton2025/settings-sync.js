@@ -180,6 +180,12 @@
   let pendingChanges = readPendingChanges();
   let saveTimeout = null;
 
+  // Track the last time the user made a local change, so syncFromUci
+  // can skip overwriting localStorage if the user just changed something
+  // and the UCI save hasn't round-tripped yet.
+  const SYNC_COOLDOWN_MS = 3000;
+  let lastLocalChange = 0;
+
   // Debounced save to UCI
   function scheduleSaveToUci(delayMs = SAVE_DEBOUNCE_MS) {
     if (saveTimeout) {
@@ -256,6 +262,12 @@
   // Load settings from UCI and sync to localStorage
   async function syncFromUci() {
     if (syncInProgress || hasPendingChanges()) return;
+
+    // If the user made local changes recently, skip sync and let the
+    // debounced UCI save complete first — otherwise UCI may still
+    // carry stale values and overwrite the user's just-changed setting.
+    if (Date.now() - lastLocalChange < SYNC_COOLDOWN_MS) return;
+
     syncInProgress = true;
 
     try {
@@ -321,6 +333,7 @@
 
     // If this is a proton setting and not syncing from UCI, queue for UCI save
     if (SETTINGS_MAP[key] && !isSyncingFromUci) {
+      lastLocalChange = Date.now();
       const uciName = SETTINGS_MAP[key];
       const uciValue = localToUci(key, value);
       pendingChanges[uciName] = uciValue;
