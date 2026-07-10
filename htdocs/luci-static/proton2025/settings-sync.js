@@ -10,7 +10,9 @@
  *
  * Flow:
  * 1. On page load: Apply from localStorage immediately (sync, in <head>)
- * 2. After load: Fetch from UCI, update localStorage if different
+ * 2. After load: Fetch from UCI, seed localStorage for keys that don't
+ *    exist yet (first visit / new device). Never overwrite a value the
+ *    user has already set in this browser.
  * 3. On change: Update localStorage + apply immediately, then save to UCI async
  */
 
@@ -285,15 +287,13 @@
       isSyncingFromUci = true;
 
       try {
-        // A deliberately-picked-but-not-yet-saved local value is already
-        // protected: syncFromUci() bails out at the top while hasPendingChanges()
-        // is true (that queue is persisted in sessionStorage across navigation).
-        // So by the time we get here UCI is authoritative for every option, the
-        // custom accent included — no per-option guard. Guarding the accent here
-        // used to make it "sticky" to whatever the browser had in localStorage
-        // and ignore the value shipped in /etc/config/proton2025 on a freshly
-        // flashed device (accent=custom + a stale/empty accent_custom fell back
-        // to the built-in #5e9eff instead of the configured colour).
+        // A deliberately-picked-but-not-yet-saved local value is protected at
+        // the top: syncFromUci() bails out while hasPendingChanges() is true
+        // (that queue is persisted in sessionStorage across navigation) and
+        // within SYNC_COOLDOWN_MS of the last local change. Here we only seed
+        // keys absent from localStorage (see loop below) — UCI is never allowed
+        // to clobber a value the user already set in this browser, because the
+        // UCI write can lag behind / be lost and would otherwise revert it.
         for (const [uciName, uciValue] of Object.entries(settings)) {
           const localKey = UCI_TO_LOCAL[uciName];
           if (!localKey) continue;
@@ -301,8 +301,22 @@
           const localValue = uciToLocal(uciName, uciValue);
           const currentLocal = localStorage.getItem(localKey);
 
-          // UCI takes precedence - update localStorage if different
-          if (currentLocal !== localValue) {
+          // Only seed keys that are *absent* from localStorage. Never
+          // clobber a value the user explicitly set in this browser.
+          //
+          // Previously this block treated UCI as authoritative and overwrote
+          // localStorage whenever the two diverged. But the UCI write is
+          // debounced (500ms) and, on unload, flushed via an unreliable
+          // `keepalive` request that browsers frequently drop. So after a
+          // change the just-written UCI value could still be stale while
+          // localStorage already held the new value — the next syncFromUci()
+          // would then revert the user's choice back to the old setting.
+          //
+          // localStorage is the source of truth for this browser; UCI only
+          // provides values for keys that don't exist locally yet (first
+          // visit / new device). This fixes settings reverting on reload or
+          // tab-switch.
+          if (currentLocal === null) {
             originalSetItem(localKey, localValue); // Use original to avoid triggering save back
             updated = true;
           }
